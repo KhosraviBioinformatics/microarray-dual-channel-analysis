@@ -1,0 +1,3 @@
+FileName	Cy5	Cy3
+GSM492477.txt	Treated	Control
+
