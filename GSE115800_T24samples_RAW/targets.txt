@@ -1,0 +1,3 @@
+FileName	Cy5	Cy3
+GSM3190198.txt	Treated	Control
+GSM3190199.txt	Treated	Control
