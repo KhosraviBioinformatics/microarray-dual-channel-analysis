@@ -7,7 +7,7 @@
 install.packages("BiocManager")
 BiocManager::install("GEOquery")
 BiocManager::install("limma")
-
+BiocManager::install("BiocGenerics")
 
 
 #########################################
@@ -23,18 +23,39 @@ head(targets)
 RG <- read.maimages(files = targets$FileName,
                     source = "agilent",
                     green.only = FALSE)
+
 #########################################
-#QC & Normalization:
+# QC: Visual Inspection & Quality Assessment
 #########################################
-#QC:
+
+# 1. Raw Intensity Boxplots
 boxplot(RG$R, main = "Raw Red Channel", las = 2)
 boxplot(RG$G, main = "Raw Green Channel", las = 2)
+
+# 2. Density Plots
+par(mfrow = c(1, 2))
+plotDensities(RG$R, main = "Density of Raw Red Channel")
+plotDensities(RG$G, main = "Density of Raw Green Channel")
+
+# 3. MA-plots (within-array channel comparison before normalization)
+library(BiocGenerics)
+par(mfrow = c(1, 1))
+for (i in 1:ncol(RG$R)) {
+  ma <- limma::MA.RG(RG[, i])  # generate MA list from RG object for array i
+  limma::plotMA(ma, main = paste("MA-Plot Array", i), ylim = c(-5, 5))
+}
+#########################################
+#Normalization& background correction:
+#########################################
+
 #background correction:
 RGb <- backgroundCorrect(RG, method = "normexp")
+
 #normalization:
 MA <- normalizeWithinArrays(RGb, method = "loess")
 #########################################
 #Analysis:
+
 #########################################
 fit <- lmFit(MA)
 fit <- eBayes(fit)
